@@ -38,8 +38,8 @@ git push
 Write-Host "[GIT] ZIP berhasil dikirim ke GitHub"
 
 # ==================== Bersih-bersih ZIP ====================
-Remove-Item $ZipFinal -Force
-Write-Host "[CLEANUP] ZIP dihapus kembali setelah push"
+# Remove-Item $ZipFinal -Force
+# Write-Host "[CLEANUP] ZIP dihapus kembali setelah push"
 
 # ==================== Selesai ====================
 Write-Host "`n[FINISH] Proses selesai!"
