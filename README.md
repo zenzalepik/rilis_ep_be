@@ -6,7 +6,7 @@ Selamat datang di halaman rilis aplikasi. Berikut adalah file yang dapat Anda un
 
 ## 📦 Unduhan
 
-- [⬇️ Download EvoParkBE.zip](https://github.com/zenzalepik/rilis_ep_be/raw/main/EvoParkBE.zip)
+- [⬇️ Download EvoParkBE.zip](https://github.com/zenzalepik/rilis_ep_be/raw/master/EvoParkBE.zip)
   📁 File **EvoParkBE.zip** core logic bisnis & data.
 
 ---
@@ -14,6 +14,17 @@ Selamat datang di halaman rilis aplikasi. Berikut adalah file yang dapat Anda un
 - [⬇️ Download postgresql-17.5-3-windows-x64-binaries.zip](https://github.com/zenzalepik/rilis_ep/raw/main/postgresql-17.5-3-windows-x64-binaries.zip)
   📁 File **postgres portable** database runtime portable untuk OS Windows.
 
+---
+
+- [⬇️ Download .env](https://github.com/zenzalepik/rilis_ep_be/raw/master/.env)
+  📁 File **.env** kunci aplikasi.
+
+---
+
+- [⬇️ Download package.json](https://github.com/zenzalepik/rilis_ep_be/raw/master/package.json)
+  📁 File **package.json** kunci aplikasi.
+
+---
 ---
 
 ---
