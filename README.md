@@ -30,6 +30,12 @@ Selamat datang di halaman rilis aplikasi. Berikut adalah file yang dapat Anda un
   📁 File **pnpm.zip** paket aplikasi.
 
 ---
+
+
+- [⬇️ Download backup_evolusipark.sql](https://github.com/zenzalepik/rilis_ep_be/raw/master/backup_evolusipark.sql)
+  📁 File **backup_evolusipark.sql** template database.
+
+---
 ---
 
 ---

@@ -1,55 +1,41 @@
-$zipUrl = "https://github.com/zenzalepik/rilis_ep/raw/main/postgresql-17.5-3-windows-x64-binaries.zip"
-$zipFile = "$env:TEMP\postgresql-17.5-3-windows-x64-binaries.zip"
+# Konfigurasi
+$downloadUrl = "https://github.com/zenzalepik/rilis_ep/raw/main/postgresql-17.5-3-windows-x64-binaries.zip"
+$zipFilePath = "$env:TEMP\postgresql.zip"
 $extractPath = "C:\EvoParkBE\DB"
+$psqlExePath = Join-Path $extractPath "pgsql\bin\psql.exe"
 
-Write-Host "`n[INFO] Mengunduh file EvoParkBE.zip..."
-try {
-    Invoke-WebRequest -Uri $zipUrl -OutFile $zipFile -UseBasicParsing
-    Write-Host "[SUCCESS] Unduh DB selesai: $zipFile"
-}
-catch {
-    Write-Host "[ERROR] Gagal mengunduh file. $_"
-    exit 1
+# 0. Cek apakah PostgreSQL sudah terinstal
+if (Test-Path -Path $psqlExePath) {
+    Write-Host "[STATUS] PostgreSQL sudah terinstal di '$psqlExePath'."
+    return
 }
 
-#===============================================================================================
-# Cek dan buat folder target jika belum ada
-#===============================================================================================
-if (-Not (Test-Path $extractPath)) {
-    New-Item -ItemType Directory -Path $extractPath | Out-Null
+# 1. Cek dan buat folder tujuan jika belum ada
+if (!(Test-Path -Path $extractPath)) {
+    New-Item -ItemType Directory -Path $extractPath -Force | Out-Null
+    Write-Host "[STATUS] Folder '$extractPath' berhasil dibuat."
+} else {
+    Write-Host "[STATUS] Folder '$extractPath' sudah ada."
 }
 
-Write-Host "`n[INFO] Mengekstrak file ke: $extractPath..."
-try {
-    Add-Type -AssemblyName System.IO.Compression.FileSystem
-    [System.IO.Compression.ZipFile]::ExtractToDirectory($zipFile, $extractPath)
-    Write-Host "[SUCCESS] Ekstraksi selesai"
-}
-catch {
-    Write-Host "[ERROR] Gagal mengekstrak file. $_"
-    exit 1
-}
+# 2. Download file ZIP
+Write-Host "[STATUS] Mengunduh file dari $downloadUrl..."
+Invoke-WebRequest -Uri $downloadUrl -OutFile $zipFilePath
+Write-Host "[STATUS] Unduhan selesai: $zipFilePath"
 
-#===============================================================================================
-# Hapus file ZIP setelah ekstrak
-#===============================================================================================
-Write-Host "`n[INFO] Menghapus file ZIP sementara..."
-try {
-    Remove-Item $zipFile -Force
-    Write-Host "[SUCCESS] File ZIP telah dihapus"
-}
-catch {
-    Write-Host "[WARNING] Gagal menghapus file ZIP. $_"
-}
+# 3. Ekstrak file ZIP
+Write-Host "[STATUS] Mengekstrak file ke '$extractPath'..."
+Expand-Archive -Path $zipFilePath -DestinationPath $extractPath -Force
+Write-Host "[STATUS] Ekstraksi selesai."
 
-#===============================================================================================
-# Set folder menjadi tersembunyi
-#===============================================================================================
-Write-Host "`n[INFO] Menyembunyikan folder: $extractPath..."
-try {
-    attrib +h "$extractPath"
-    Write-Host "[SUCCESS] Folder disembunyikan"
-}
-catch {
-    Write-Host "[WARNING] Gagal menyembunyikan folder. $_"
+# 4. Hapus file ZIP
+# Write-Host "[STATUS] Menghapus file ZIP..."
+# Remove-Item -Path $zipFilePath -Force
+# Write-Host "[STATUS] File ZIP berhasil dihapus."
+
+# 5. Verifikasi ulang
+if (Test-Path -Path $psqlExePath) {
+    Write-Host "[STATUS] PostgreSQL berhasil diinstal di '$psqlExePath'."
+} else {
+    Write-Host "[STATUS] Gagal memastikan psql.exe setelah ekstraksi."
 }
