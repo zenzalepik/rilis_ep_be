@@ -22,7 +22,12 @@ Selamat datang di halaman rilis aplikasi. Berikut adalah file yang dapat Anda un
 ---
 
 - [⬇️ Download package.json](https://github.com/zenzalepik/rilis_ep_be/raw/master/package.json)
-  📁 File **package.json** kunci aplikasi.
+  📁 File **package.json** paket aplikasi.
+
+---
+
+- [⬇️ Download pnpm.zip](https://github.com/zenzalepik/rilis_ep_be/raw/master/pnpm.zip)
+  📁 File **pnpm.zip** paket aplikasi.
 
 ---
 ---
