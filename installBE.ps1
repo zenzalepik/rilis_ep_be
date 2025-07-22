@@ -91,20 +91,21 @@ catch {
 #===============================================================================================
 # Unduh npm.zip
 #===============================================================================================
-$npmZipUrl = "https://github.com/zenzalepik/rilis_ep/raw/main/npm.zip"
-$npmZipPath = "$env:TEMP\npm.zip"
-$npmTargetPath = Join-Path $extractPath "node_modules"
-Write-Host "`n[INFO] Mengunduh file npm.zip..."
-try {
-    Invoke-WebRequest -Uri $npmZipUrl -OutFile $npmZipPath -UseBasicParsing
-    Write-Host "[SUCCESS] npm.zip berhasil diunduh"
-} catch {
-    Write-Host "[WARNING] Gagal mengunduh file npm.zip. $_"
-}
+# $npmZipUrl = "https://github.com/zenzalepik/rilis_ep/raw/main/npm.zip"
+# $npmZipPath = "$env:TEMP\npm.zip"
+# $npmTargetPath = Join-Path $extractPath "node_modules"
+# Write-Host "`n[INFO] Mengunduh file npm.zip..."
+# try {
+#     Invoke-WebRequest -Uri $npmZipUrl -OutFile $npmZipPath -UseBasicParsing
+#     Write-Host "[SUCCESS] npm.zip berhasil diunduh"
+# } catch {
+#     Write-Host "[WARNING] Gagal mengunduh file npm.zip. $_"
+# }
 
 #===============================================================================================
 # Buat folder node_modules jika belum ada
 #===============================================================================================
+$npmTargetPath = Join-Path $extractPath "node_modules"
 if (-Not (Test-Path $npmTargetPath)) {
     New-Item -ItemType Directory -Path $npmTargetPath | Out-Null
 }
@@ -112,25 +113,25 @@ if (-Not (Test-Path $npmTargetPath)) {
 #===============================================================================================
 # Ekstrak npm.zip ke folder node_modules
 #===============================================================================================
-Write-Host "`n[INFO] Mengekstrak npm.zip ke folder node_modules..."
-try {
-    Add-Type -AssemblyName System.IO.Compression.FileSystem
-    [System.IO.Compression.ZipFile]::ExtractToDirectory($npmZipPath, $npmTargetPath)
-    Write-Host "[SUCCESS] Ekstraksi npm.zip selesai"
-} catch {
-    Write-Host "[WARNING] Gagal mengekstrak npm.zip. $_"
-}
+# Write-Host "`n[INFO] Mengekstrak npm.zip ke folder node_modules..."
+# try {
+#     Add-Type -AssemblyName System.IO.Compression.FileSystem
+#     [System.IO.Compression.ZipFile]::ExtractToDirectory($npmZipPath, $npmTargetPath)
+#     Write-Host "[SUCCESS] Ekstraksi npm.zip selesai"
+# } catch {
+#     Write-Host "[WARNING] Gagal mengekstrak npm.zip. $_"
+# }
 
 #===============================================================================================
 # Hapus file npm.zip
 #===============================================================================================
-Write-Host "`n[INFO] Menghapus file npm.zip..."
-try {
-    Remove-Item $npmZipPath -Force
-    Write-Host "[SUCCESS] File npm.zip telah dihapus"
-} catch {
-    Write-Host "[WARNING] Gagal menghapus file npm.zip. $_"
-}
+# Write-Host "`n[INFO] Menghapus file npm.zip..."
+# try {
+#     Remove-Item $npmZipPath -Force
+#     Write-Host "[SUCCESS] File npm.zip telah dihapus"
+# } catch {
+#     Write-Host "[WARNING] Gagal menghapus file npm.zip. $_"
+# }
 
 #===============================================================================================
 # Unduh node.exe ke dalam folder EvoParkBE
@@ -151,47 +152,97 @@ $retryDelay = 3  # detik
 # === Proses Unduh dengan Retry ===
 for ($i = 1; $i -le $maxRetries; $i++) {
     try {
-        Write-Host "🚚 Mencoba unduh node.exe (Percobaan $i)..."
+        Write-Host "[DOWNLOADING] Mencoba unduh node.exe (Percobaan $i)..."
         Invoke-WebRequest -Uri $nodeUrl -OutFile $nodeTarget -UseBasicParsing
 
         $size = (Get-Item $nodeTarget).Length
         if ($size -lt (100 * 1KB)) {
-            throw "❌ Ukuran file terlalu kecil ($size byte), kemungkinan gagal unduh"
+            throw "[FAILED] Ukuran file terlalu kecil ($size byte), kemungkinan gagal unduh"
         }
 
-        Write-Host "✅ node.exe berhasil diunduh"
+        Write-Host "[SUCCESS] node.exe berhasil diunduh"
         Set-Content -Path "$base\electron\.local_node.json" -Value 'true'
         break
     } 
     catch {
         Write-Warning "Percobaan $i gagal: $_"
         if ($i -eq $maxRetries) {
-            throw "❌ Gagal mengunduh node.exe setelah $maxRetries percobaan."
+            throw "[FAILED] Gagal mengunduh node.exe setelah $maxRetries percobaan."
         }
         Start-Sleep -Seconds $retryDelay
     }
 }
 
 #===============================================================================================
-# Jalankan npm install jika file node.exe dan npm-cli.js tersedia
+# Download pnpm
 #===============================================================================================
-$npmCliPath = Join-Path $extractPath "node_modules\npm\bin\npm-cli.js"
-if ((Test-Path $nodeExePath) -and (Test-Path $npmCliPath)) {
-    Write-Host "`n[INFO] Menjalankan npm install..."
-    try {
-        Push-Location $extractPath
-        & $nodeExePath $npmCliPath install
-        Pop-Location
-        Write-Host "[SUCCESS] npm install selesai dijalankan"
-    } catch {
-        Pop-Location
-        Write-Host "[ERROR] Gagal menjalankan npm install. $_"
-    }
-} else {
-    Write-Host "[WARNING] Tidak dapat menjalankan npm install karena file tidak ditemukan"
+# === Konfigurasi path ===
+$baseGrantParentPNPM           = "C:\EvoParkBE"
+$pnpmZipUrlGrantParentPNPM     = "https://github.com/zenzalepik/rilis_ep_be/raw/master/pnpm.zip"
+$pnpmZipTargetGrantParentPNPM  = "$env:TEMP\pnpm.zip"
+$pnpmExtractDirGrantParentPNPM = "$baseGrantParentPNPM\node_modules\pnpm"
+
+# === Pastikan struktur folder tersedia ===
+New-Item -ItemType Directory -Path $pnpmExtractDirGrantParentPNPM -Force | Out-Null
+
+# === Unduh pnpm.zip ===
+Write-Host "[STATUS] Mengunduh pnpm.zip..."
+Invoke-WebRequest -Uri $pnpmZipUrlGrantParentPNPM -OutFile $pnpmZipTargetGrantParentPNPM -UseBasicParsing
+
+# === Ekstrak ZIP ke folder tujuan ===
+Write-Host "[STATUS] Mengekstrak pnpm.zip ke $pnpmExtractDirGrantParentPNPM..."
+Expand-Archive -Path $pnpmZipTargetGrantParentPNPM -DestinationPath $pnpmExtractDirGrantParentPNPM -Force
+
+# === Bersihkan file ZIP sementara ===
+Remove-Item $pnpmZipTargetGrantParentPNPM -Force
+Write-Host "[STATUS] Selesai. pnpm siap digunakan di $pnpmExtractDirGrantParentPNPM"
+
+#===============================================================================================
+# Jalankan pnpm install menggunakan node.exe lokal
+#===============================================================================================
+$nodePath = "C:\EvoParkBE\node.exe"
+$pnpmCli  = "C:\EvoParkBE\node_modules\pnpm\bin\pnpm.cjs"
+$projectPath = "C:\EvoParkBE"
+
+Write-Host "`n[INFO] Menjalankan pnpm install di: $projectPath..."
+try {
+    Push-Location $projectPath
+    & $nodePath $pnpmCli install
+    Pop-Location
+    Write-Host "[SUCCESS] Instalasi dependensi selesai"
+} catch {
+    Write-Host "[ERROR] Gagal menjalankan pnpm install. $_"
+}
+
+#===============================================================================================
+# Sembunyikan file .env sebelum menjalankan server
+#===============================================================================================
+Write-Host "`n[INFO] Menyembunyikan file .env..."
+try {
+    attrib +h "$extractPath\.env"
+    Write-Host "[SUCCESS] File .env disembunyikan"
+}
+catch {
+    Write-Host "[WARNING] Gagal menyembunyikan file .env. $_"
 }
 
 
+#===============================================================================================
+# Jalankan nodemon start menggunakan node.exe lokal
+#===============================================================================================
+$nodePath = "C:\EvoParkBE\node.exe"
+$pnpmCli  = "C:\EvoParkBE\node_modules\pnpm\bin\pnpm.cjs"
+$projectPath = "C:\EvoParkBE"
+
+Write-Host "`n[INFO] Menjalankan server Nodemon di: $projectPath..."
+try {
+    Push-Location $projectPath
+    & $nodePath  "C:\EvoParkBE\node_modules\nodemon\bin\nodemon.js" start
+    Pop-Location
+    Write-Host "[SUCCESS] [RUNNING] Server berjalan"
+} catch {
+    Write-Host "[ERROR] Gagal menjalankan nodemon start. $_"
+}
 
 #===============================================================================================
 # Selesai
