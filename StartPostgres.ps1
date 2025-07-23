@@ -18,3 +18,7 @@ if ($pgStatus -match "no server running") {
 
 # Tambahkan jeda sebelum script berakhir
 Start-Sleep -Seconds 5
+
+
+
+
