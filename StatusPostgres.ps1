@@ -7,15 +7,19 @@ try {
     $pgStatus = & $pgCtl status -D $dataDir
     if ($pgStatus -match "server is running") {
         Write-Host "[INFO] PostgreSQL sedang berjalan."
+        exit 0
     } elseif ($pgStatus -match "no server running") {
         Write-Host "[WARNING] PostgreSQL TIDAK berjalan."
+        exit 1
     } else {
         Write-Host "[INFO] Status tidak dapat dipastikan:"
         Write-Host $pgStatus
+        exit 1
     }
 } catch {
     Write-Host "[ERROR] Gagal mengecek status PostgreSQL."
     Write-Host $_.Exception.Message
+    exit 1
 }
 
 Start-Sleep -Seconds 1  # Tunggu sebentar sebelum tutup window

@@ -45,6 +45,7 @@ try {
 }
 catch {
     Write-Host "[ERROR] Gagal mengimpor file SQL. $_"
+    exit 1
 }
 finally {
     Remove-Item Env:PGPASSWORD
@@ -60,3 +61,8 @@ if (Test-Path $sqlFilePath) {
         Write-Host "[WARNING] Gagal menghapus file SQL: $_"
     }
 }
+
+#===============================================================================================
+# SELESAI
+#===============================================================================================
+exit 0

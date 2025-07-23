@@ -36,7 +36,10 @@ try {
 }
 catch {
     Write-Host "[ERROR] Gagal membuat database. $_"
+    exit 1
 }
 finally {
     Remove-Item Env:PGPASSWORD
 }
+
+exit 0

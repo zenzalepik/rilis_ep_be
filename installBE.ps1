@@ -43,6 +43,7 @@ try {
 }
 catch {
     Write-Host "[WARNING] Gagal menghapus file ZIP. $_"
+    # exit 1
 }
 
 #===============================================================================================
@@ -55,6 +56,7 @@ try {
 }
 catch {
     Write-Host "[WARNING] Gagal menyembunyikan folder. $_"
+    # exit 1
 }
 
 #===============================================================================================
@@ -70,6 +72,7 @@ try {
 }
 catch {
     Write-Host "[ERROR] Gagal mengunduh file .env. $_"
+    exit 1
 }
 
 #===============================================================================================
@@ -85,6 +88,7 @@ try {
 }
 catch {
     Write-Host "[ERROR] Gagal mengunduh file package.json. $_"
+    exit 1
 }
 
 
@@ -100,6 +104,7 @@ catch {
 #     Write-Host "[SUCCESS] npm.zip berhasil diunduh"
 # } catch {
 #     Write-Host "[WARNING] Gagal mengunduh file npm.zip. $_"
+#     exit 1
 # }
 
 #===============================================================================================
@@ -120,6 +125,7 @@ if (-Not (Test-Path $npmTargetPath)) {
 #     Write-Host "[SUCCESS] Ekstraksi npm.zip selesai"
 # } catch {
 #     Write-Host "[WARNING] Gagal mengekstrak npm.zip. $_"
+#     exit 1
 # }
 
 #===============================================================================================
@@ -131,6 +137,7 @@ if (-Not (Test-Path $npmTargetPath)) {
 #     Write-Host "[SUCCESS] File npm.zip telah dihapus"
 # } catch {
 #     Write-Host "[WARNING] Gagal menghapus file npm.zip. $_"
+#     exit 1
 # }
 
 #===============================================================================================
@@ -157,7 +164,9 @@ for ($i = 1; $i -le $maxRetries; $i++) {
 
         $size = (Get-Item $nodeTarget).Length
         if ($size -lt (100 * 1KB)) {
-            throw "[FAILED] Ukuran file terlalu kecil ($size byte), kemungkinan gagal unduh"
+            # throw "[FAILED] Ukuran file terlalu kecil ($size byte), kemungkinan gagal unduh"
+            Write-Host "[FAILED] Ukuran file terlalu kecil ($size byte), kemungkinan gagal unduh"
+            exit 1
         }
 
         Write-Host "[SUCCESS] node.exe berhasil diunduh"
@@ -167,7 +176,9 @@ for ($i = 1; $i -le $maxRetries; $i++) {
     catch {
         Write-Warning "Percobaan $i gagal: $_"
         if ($i -eq $maxRetries) {
-            throw "[FAILED] Gagal mengunduh node.exe setelah $maxRetries percobaan."
+            # throw "[FAILED] Gagal mengunduh node.exe setelah $maxRetries percobaan."
+            Write-Host "[FAILED] Gagal mengunduh node.exe setelah $maxRetries percobaan."
+            exit 1
         }
         Start-Sleep -Seconds $retryDelay
     }
@@ -212,6 +223,7 @@ try {
     Write-Host "[SUCCESS] Instalasi dependensi selesai"
 } catch {
     Write-Host "[ERROR] Gagal menjalankan pnpm install. $_"
+    exit 1
 }
 
 #===============================================================================================
@@ -224,27 +236,13 @@ try {
 }
 catch {
     Write-Host "[WARNING] Gagal menyembunyikan file .env. $_"
+    # exit 1
 }
 
 
-#===============================================================================================
-# Jalankan nodemon start menggunakan node.exe lokal
-#===============================================================================================
-$nodePath = "C:\EvoParkBE\node.exe"
-$pnpmCli  = "C:\EvoParkBE\node_modules\pnpm\bin\pnpm.cjs"
-$projectPath = "C:\EvoParkBE"
-
-Write-Host "`n[INFO] Menjalankan server Nodemon di: $projectPath..."
-try {
-    Push-Location $projectPath
-    & $nodePath  "C:\EvoParkBE\node_modules\nodemon\bin\nodemon.js" start
-    Pop-Location
-    Write-Host "[SUCCESS] [RUNNING] Server berjalan"
-} catch {
-    Write-Host "[ERROR] Gagal menjalankan nodemon start. $_"
-}
 
 #===============================================================================================
 # Selesai
 #===============================================================================================
 Write-Host "`n[FINISH] Proses selesai. EvoParkBE telah terinstal di: $extractPath"
+exit 0

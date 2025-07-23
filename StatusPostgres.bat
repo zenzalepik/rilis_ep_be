@@ -1,4 +1,4 @@
-@echo off
+::@echo off
 :: Cek apakah dijalankan sebagai Admin
 ::net session >nul 2>&1
 ::if %errorlevel% neq 0 (
@@ -17,3 +17,5 @@
 ::===================================================================================================================
 @echo off
 powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0StatusPostgres.ps1"
+if errorlevel 1 exit /b 1
+exit /b 0

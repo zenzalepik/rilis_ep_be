@@ -7,7 +7,8 @@ $psqlExePath = Join-Path $extractPath "pgsql\bin\psql.exe"
 # 0. Cek apakah PostgreSQL sudah terinstal
 if (Test-Path -Path $psqlExePath) {
     Write-Host "[STATUS] PostgreSQL sudah terinstal di '$psqlExePath'."
-    return
+    # return
+    exit 0
 }
 
 # 1. Cek dan buat folder tujuan jika belum ada
@@ -36,6 +37,8 @@ Write-Host "[STATUS] Ekstraksi selesai."
 # 5. Verifikasi ulang
 if (Test-Path -Path $psqlExePath) {
     Write-Host "[STATUS] PostgreSQL berhasil diinstal di '$psqlExePath'."
+    exit 0
 } else {
     Write-Host "[STATUS] Gagal memastikan psql.exe setelah ekstraksi."
+    exit 1
 }

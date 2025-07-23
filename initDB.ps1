@@ -14,6 +14,11 @@ Write-Host "`n[INFO] Inisialisasi folder data PostgreSQL..."
 try {
     & $initdb -D $dataDir -U postgres -A password --pwfile=$pwFile
     Write-Host "[SUCCESS] Folder data berhasil dibuat dan disiapkan: $dataDir"
+    #========================================================================================
+    # SELESAI
+    #========================================================================================
+    exit 0
 } catch {
     Write-Host "[ERROR] Gagal inisialisasi folder data. $_"
+    exit 1
 }
