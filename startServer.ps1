@@ -25,6 +25,7 @@ $projectPath  = "C:\EvoParkBE"
 Write-Host "`n[INFO] Menjalankan server Nodemon di background..."
 
 try {
+    Write-Host "[INFO] Mencoba menjalankan server."
     Start-Process -FilePath $nodePath -ArgumentList "`"$nodemonPath`" start" -WorkingDirectory $projectPath -WindowStyle Hidden
     Write-Host "[SUCCESS] Server Nodemon berjalan sebagai background process."
     exit 0

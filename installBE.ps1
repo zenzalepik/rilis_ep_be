@@ -21,6 +21,11 @@ catch {
 if (-Not (Test-Path $extractPath)) {
     New-Item -ItemType Directory -Path $extractPath | Out-Null
 }
+# Bersihkan isi folder target (force overwrite)
+if (Test-Path $extractPath) {
+    Write-Host "[INFO] Membersihkan isi folder sebelum ekstraksi..."
+    Remove-Item "$extractPath\*" -Recurse -Force -ErrorAction SilentlyContinue
+}
 
 Write-Host "`n[INFO] Mengekstrak file ke: $extractPath..."
 try {
@@ -92,20 +97,7 @@ catch {
 }
 
 
-#===============================================================================================
-# Unduh npm.zip
-#===============================================================================================
-# $npmZipUrl = "https://github.com/zenzalepik/rilis_ep/raw/main/npm.zip"
-# $npmZipPath = "$env:TEMP\npm.zip"
-# $npmTargetPath = Join-Path $extractPath "node_modules"
-# Write-Host "`n[INFO] Mengunduh file npm.zip..."
-# try {
-#     Invoke-WebRequest -Uri $npmZipUrl -OutFile $npmZipPath -UseBasicParsing
-#     Write-Host "[SUCCESS] npm.zip berhasil diunduh"
-# } catch {
-#     Write-Host "[WARNING] Gagal mengunduh file npm.zip. $_"
-#     exit 1
-# }
+
 
 #===============================================================================================
 # Buat folder node_modules jika belum ada
@@ -114,31 +106,6 @@ $npmTargetPath = Join-Path $extractPath "node_modules"
 if (-Not (Test-Path $npmTargetPath)) {
     New-Item -ItemType Directory -Path $npmTargetPath | Out-Null
 }
-
-#===============================================================================================
-# Ekstrak npm.zip ke folder node_modules
-#===============================================================================================
-# Write-Host "`n[INFO] Mengekstrak npm.zip ke folder node_modules..."
-# try {
-#     Add-Type -AssemblyName System.IO.Compression.FileSystem
-#     [System.IO.Compression.ZipFile]::ExtractToDirectory($npmZipPath, $npmTargetPath)
-#     Write-Host "[SUCCESS] Ekstraksi npm.zip selesai"
-# } catch {
-#     Write-Host "[WARNING] Gagal mengekstrak npm.zip. $_"
-#     exit 1
-# }
-
-#===============================================================================================
-# Hapus file npm.zip
-#===============================================================================================
-# Write-Host "`n[INFO] Menghapus file npm.zip..."
-# try {
-#     Remove-Item $npmZipPath -Force
-#     Write-Host "[SUCCESS] File npm.zip telah dihapus"
-# } catch {
-#     Write-Host "[WARNING] Gagal menghapus file npm.zip. $_"
-#     exit 1
-# }
 
 #===============================================================================================
 # Unduh node.exe ke dalam folder EvoParkBE
@@ -160,7 +127,9 @@ $retryDelay = 3  # detik
 for ($i = 1; $i -le $maxRetries; $i++) {
     try {
         Write-Host "[DOWNLOADING] Mencoba unduh node.exe (Percobaan $i)..."
-        Invoke-WebRequest -Uri $nodeUrl -OutFile $nodeTarget -UseBasicParsing
+        # Invoke-WebRequest -Uri $nodeUrl -OutFile $nodeTarget -UseBasicParsing
+        $wc = New-Object System.Net.WebClient
+        $wc.DownloadFile($nodeUrl, $nodeTarget)
 
         $size = (Get-Item $nodeTarget).Length
         if ($size -lt (100 * 1KB)) {
@@ -244,5 +213,11 @@ catch {
 #===============================================================================================
 # Selesai
 #===============================================================================================
+$StatusDir = "C:\EvoParkBE\status"
+if (-Not (Test-Path $StatusDir)) {
+    New-Item -ItemType Directory -Path $StatusDir | Out-Null
+}
+Get-Date | Out-File "$StatusDir\installBE.done"
+
 Write-Host "`n[FINISH] Proses selesai. EvoParkBE telah terinstal di: $extractPath"
 exit 0

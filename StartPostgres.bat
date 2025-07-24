@@ -1,44 +1,20 @@
 ::===============================================================================
-:: RUN FOREGROUND
+:: RUN BACKGROUND
 ::===============================================================================
-
 ::@echo off
-:::: Cek apakah dijalankan sebagai Admin
 ::net session >nul 2>&1
 ::if %errorlevel% neq 0 (
 ::    echo [INFO] Meminta hak Administrator...
-::    powershell -Command "Start-Process 'powershell.exe' -ArgumentList '-ExecutionPolicy Bypass -File \"%~dp0StartPostgres.ps1\"' -Verb RunAs"
-::    exit /b
+::    powershell -Command "Start-Process -FilePath 'powershell.exe' -ArgumentList '-ExecutionPolicy Bypass -WindowStyle Hidden -File \"%~dp0StartPostgres.ps1\"' -Verb RunAs -Wait"
+::    if errorlevel 1 exit /b 1
+::    exit /b 0
 ::)
 ::
-:::: Kalau sudah admin, langsung jalankan script
-::powershell -ExecutionPolicy Bypass -File "%~dp0StartPostgres.ps1"
-::pause
+::powershell -Command "Start-Process -FilePath 'powershell.exe' -ArgumentList '-ExecutionPolicy Bypass -WindowStyle Hidden -File \"%~dp0StartPostgres.ps1\"' -Wait"
+::if errorlevel 1 exit /b 1
+::exit /b 0
 
-
-::===============================================================================
-:: RUN BACKGROUND
-::===============================================================================
 @echo off
-:: Cek apakah dijalankan sebagai Admin
-net session >nul 2>&1
-if %errorlevel% neq 0 (
-    echo [INFO] Meminta hak Administrator...
-    powershell -Command "Start-Process -FilePath 'powershell.exe' -ArgumentList '-ExecutionPolicy Bypass -WindowStyle Hidden -File \"%~dp0StartPostgres.ps1\"' -Verb RunAs"
-    ::exit /b
-    if errorlevel 1 exit /b 1
-    ::exit /b 0
-)
-
-:: Kalau sudah admin, langsung jalankan PowerShell di background
-powershell -Command "Start-Process -FilePath 'powershell.exe' -ArgumentList '-ExecutionPolicy Bypass -WindowStyle Hidden -File \"%~dp0StartPostgres.ps1\"'"
-::exit /b
+powershell -ExecutionPolicy Bypass -File "%~dp0StartPostgres.ps1"
 if errorlevel 1 exit /b 1
 exit /b 0
-
-::===============================================================================
-:: Kalau sudah admin, langsung jalankan script di console aktif
-:: Auto close
-::===============================================================================
-:: powershell -ExecutionPolicy Bypass -File "%~dp0StartPostgres.ps1"
-:: pause

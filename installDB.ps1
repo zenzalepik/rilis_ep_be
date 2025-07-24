@@ -20,14 +20,54 @@ if (!(Test-Path -Path $extractPath)) {
 }
 
 # 2. Download file ZIP
-Write-Host "[STATUS] Mengunduh file dari $downloadUrl..."
-Invoke-WebRequest -Uri $downloadUrl -OutFile $zipFilePath
-Write-Host "[STATUS] Unduhan selesai: $zipFilePath"
+# Write-Host "[STATUS] Mengunduh file dari $downloadUrl..."
+# Invoke-WebRequest -Uri $downloadUrl -OutFile $zipFilePath
+#Write-Host "[STATUS] Unduhan selesai: $zipFilePath"
+# try { #Kode ini memakai pengecekan ukuran hasil file download
+#     Invoke-WebRequest -Uri $downloadUrl -OutFile $zipFilePath -UseBasicParsing
+#     $size = (Get-Item $zipFilePath).Length
+#     if ($size -lt 100KB) {
+#         throw "[ERROR] File ZIP terlalu kecil ($size byte), kemungkinan gagal unduh."
+#     }
+#     Write-Host "[STATUS] Unduhan selesai: $zipFilePath"
+# } catch {
+#     Write-Host "[ERROR] Gagal mengunduh file ZIP. $_"
+#     exit 1
+# }
+#>>>>>>>>>>>>>>>>>>>>>>>>>>TANPA PROGRESSBAR<<<<<<<<<<<<<<<<<<<<<<<<<
+try {
+    $wc = New-Object System.Net.WebClient
+    $wc.DownloadFile($downloadUrl, $zipFilePath)
+
+    $size = (Get-Item $zipFilePath).Length
+    if ($size -lt 100KB) {
+        throw "[ERROR] File ZIP terlalu kecil ($size byte), kemungkinan gagal unduh."
+    }
+
+    Write-Host "[STATUS] Unduhan selesai: $zipFilePath"
+} catch {
+    Write-Host "[ERROR] Gagal mengunduh file ZIP. $_"
+    exit 1
+}
+
+
 
 # 3. Ekstrak file ZIP
+# Write-Host "[STATUS] Mengekstrak file ke '$extractPath'..."
+# Expand-Archive -Path $zipFilePath -DestinationPath $extractPath -Force
+# Write-Host "[STATUS] Ekstraksi selesai."
+#>>>>>>>>>>>>>>>>>>>>>>>>>>TANPA PROGRESSBAR<<<<<<<<<<<<<<<<<<<<<<<<<
+Add-Type -AssemblyName System.IO.Compression.FileSystem
+
 Write-Host "[STATUS] Mengekstrak file ke '$extractPath'..."
-Expand-Archive -Path $zipFilePath -DestinationPath $extractPath -Force
-Write-Host "[STATUS] Ekstraksi selesai."
+try {
+    [System.IO.Compression.ZipFile]::ExtractToDirectory($zipFilePath, $extractPath)
+    Write-Host "[STATUS] Ekstraksi selesai."
+} catch {
+    Write-Host "[ERROR] Gagal mengekstrak ZIP. $_"
+    exit 1
+}
+
 
 # 4. Hapus file ZIP
 # Write-Host "[STATUS] Menghapus file ZIP..."
