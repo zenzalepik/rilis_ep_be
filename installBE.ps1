@@ -113,7 +113,8 @@ if (-Not (Test-Path $npmTargetPath)) {
 # === Direktori dasar ===
 $base = "C:\EvoParkBE"
 $nodeTarget = "$base\node.exe"
-$nodeUrl = "https://github.com/zenzalepik/rilis_ep/raw/main/node.exe"
+# $nodeUrl = "https://github.com/zenzalepik/rilis_ep/raw/main/node.exe"
+$nodeUrl = "http://127.0.0.1:5500/node.exe"
 
 # Pastikan direktori dan folder konfigurasi tersedia
 New-Item -ItemType Directory -Path $base -Force | Out-Null

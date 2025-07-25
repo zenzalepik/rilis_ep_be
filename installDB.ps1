@@ -1,5 +1,6 @@
 # Konfigurasi
-$downloadUrl = "https://github.com/zenzalepik/rilis_ep/raw/main/postgresql-17.5-3-windows-x64-binaries.zip"
+# $downloadUrl = "https://github.com/zenzalepik/rilis_ep/raw/main/postgresql-17.5-3-windows-x64-binaries.zip"
+$downloadUrl = "http://127.0.0.1:5500/postgresql-17.5-3-windows-x64-binaries.zip"
 $zipFilePath = "$env:TEMP\postgresql.zip"
 $extractPath = "C:\EvoParkBE\DB"
 $psqlExePath = Join-Path $extractPath "pgsql\bin\psql.exe"
@@ -20,43 +21,52 @@ if (!(Test-Path -Path $extractPath)) {
 }
 
 # 2. Download file ZIP
-# Write-Host "[STATUS] Mengunduh file dari $downloadUrl..."
-# Invoke-WebRequest -Uri $downloadUrl -OutFile $zipFilePath
-#Write-Host "[STATUS] Unduhan selesai: $zipFilePath"
-# try { #Kode ini memakai pengecekan ukuran hasil file download
-#     Invoke-WebRequest -Uri $downloadUrl -OutFile $zipFilePath -UseBasicParsing
+# try {
+#     $wc = New-Object System.Net.WebClient
+#     $wc.DownloadFile($downloadUrl, $zipFilePath)
+
 #     $size = (Get-Item $zipFilePath).Length
 #     if ($size -lt 100KB) {
 #         throw "[ERROR] File ZIP terlalu kecil ($size byte), kemungkinan gagal unduh."
 #     }
+
 #     Write-Host "[STATUS] Unduhan selesai: $zipFilePath"
 # } catch {
 #     Write-Host "[ERROR] Gagal mengunduh file ZIP. $_"
 #     exit 1
 # }
-#>>>>>>>>>>>>>>>>>>>>>>>>>>TANPA PROGRESSBAR<<<<<<<<<<<<<<<<<<<<<<<<<
-try {
-    $wc = New-Object System.Net.WebClient
-    $wc.DownloadFile($downloadUrl, $zipFilePath)
+# 2. Download file ZIP dengan retry
+$maxRetries = 7
+$retryDelay = 3 # dalam detik
+$wc = New-Object System.Net.WebClient
 
-    $size = (Get-Item $zipFilePath).Length
-    if ($size -lt 100KB) {
-        throw "[ERROR] File ZIP terlalu kecil ($size byte), kemungkinan gagal unduh."
+for ($i = 1; $i -le $maxRetries; $i++) {
+    try {
+        Write-Host "[DOWNLOADING] Percobaan $i untuk unduh PostgreSQL ZIP..."
+        $wc.DownloadFile($downloadUrl, $zipFilePath)
+
+        $size = (Get-Item $zipFilePath).Length
+        if ($size -lt (100KB)) {
+            Write-Host "[FAILED] Ukuran file terlalu kecil ($size byte), kemungkinan gagal unduh."
+            throw
+        }
+
+        Write-Host "[SUCCESS] Unduhan selesai: $zipFilePath"
+        break
+    } catch {
+        Write-Host "[WARNING] Unduhan gagal (Percobaan $i): $($_.Exception.Message)"
+        if ($i -eq $maxRetries) {
+            Write-Host "[ERROR] Gagal mengunduh file ZIP setelah $maxRetries percobaan."
+            exit 1
+        }
+        Start-Sleep -Seconds $retryDelay
     }
-
-    Write-Host "[STATUS] Unduhan selesai: $zipFilePath"
-} catch {
-    Write-Host "[ERROR] Gagal mengunduh file ZIP. $_"
-    exit 1
 }
 
 
 
+
 # 3. Ekstrak file ZIP
-# Write-Host "[STATUS] Mengekstrak file ke '$extractPath'..."
-# Expand-Archive -Path $zipFilePath -DestinationPath $extractPath -Force
-# Write-Host "[STATUS] Ekstraksi selesai."
-#>>>>>>>>>>>>>>>>>>>>>>>>>>TANPA PROGRESSBAR<<<<<<<<<<<<<<<<<<<<<<<<<
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 
 Write-Host "[STATUS] Mengekstrak file ke '$extractPath'..."

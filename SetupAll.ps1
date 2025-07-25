@@ -23,7 +23,7 @@ $Steps = @(
     @{ File = "installDB.bat"; Key = "installDB" },
     @{ File = "initDB.bat"; Key = "initDB" },
     @{ File = "StartPostgres.bat"; Key = "StartPostgres" },
-    @{ File = "StatusPostgres.bat"; Key = "StatusPostgres" },
+    # @{ File = "StatusPostgres.bat"; Key = "StatusPostgres" },
     @{ File = "settingDB.bat"; Key = "settingDB" },
     @{ File = "importDB.bat"; Key = "importDB" },
     @{ File = "startServer.bat"; Key = "startServer" }
@@ -75,20 +75,6 @@ foreach ($step in $Steps) {
 # ==================================================================================
 # ========== Validasi installBE ==========
 # ==================================================================================
-# $installBEFlag = Join-Path $StatusDir "installBE.done"
-# $targetFolder  = "C:\EvoParkBE"
-
-# if (-Not (Test-Path $installBEFlag)) {
-#     Write-Host "[STATUS] installBE belum berhasil. Menghapus folder: $targetFolder"
-#     try {
-#         Remove-Item -Path $targetFolder -Recurse -Force
-#         Write-Host "[STATUS] Folder berhasil dihapus."
-#     } catch {
-#         Write-Host "[WARNING] Gagal menghapus folder: $_"
-#     }
-# }
-
-
 
 "[STATUS] Semua tahapan selesai: $(Get-Date)" | Out-File $LogFile -Append
 Write-Host "`n[STATUS] Semua proses instalasi backend selesai."
