@@ -1,3 +1,7 @@
+::=======================initDB==========================
+
+
+
 ::@echo off
 ::powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0initDB.ps1"
 
