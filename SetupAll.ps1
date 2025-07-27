@@ -75,12 +75,6 @@ foreach ($step in $Steps) {
     }
 }
 
-# ========== Validasi Output Server (StartPostgres, settingDB, importDB wajib selesai) ==========
-
-
-
-
-
 # ========== Selesai ==========
 "[STATUS] Semua tahapan selesai: $(Get-Date)" | Out-File $LogFile -Append
 Write-Host "`n[STATUS] Semua proses instalasi backend selesai."
